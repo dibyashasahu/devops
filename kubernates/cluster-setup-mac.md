@@ -95,3 +95,61 @@ get secrets
 Delete cluster
 
     kops delete cluster --name ${KOPS_CLUSTER_NAME} --yes
+    
+create environmemnt
+    
+    kubectl create namespace dev
+    kubectl create namespace test
+    kubectl create namespace prod
+    kubectl get namespaces
+    
+ create deployment
+    vi deployment.yaml
+    
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+ name: jenkins-deployment
+spec:
+ replicas: 3
+ selector:
+   matchLabels:
+     app: jenkins
+ template:
+   metadata:
+     labels:
+       app: jenkins
+   spec:
+     containers:
+     - name: jenkins
+       image: jenkins/jenkins:lts
+       ports:
+       - containerPort: 8080
+
+    
+    kubectl create -f deployment.yaml --namespace test
+    kubectl get deployments
+    kubectl get deployments --namespace test
+    kubectl get pods --namespace test
+    vi service.yaml
+    
+    apiVersion: v1
+kind: Service
+metadata:
+ name: jenkins
+spec:
+ type: NodePort
+ ports:
+   - port: 8080
+     targetPort: 8080
+     nodePort: 32000
+ selector:
+   app: jenkins
+
+Expose the service for deployment
+    kubectl create -f service.yaml --namespace test
+    kubectl describe pods --namespace test
+ provide 32000 in the inbound role, of node , check private dns
+  kubectl logs jenkins-deployment-86b4cbc868-p2w5n --namespace test
+  copy password, paste in jenkins 
+    
